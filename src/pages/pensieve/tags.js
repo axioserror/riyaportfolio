@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Layout } from '@components';
-
+import camelCase from 'camelcase';
 const StyledTagsContainer = styled.main`
   max-width: 1000px;
 
@@ -50,7 +50,7 @@ const TagsPage = ({
       <ul className="fancy-list">
         {group.map(tag => (
           <li key={tag.fieldValue}>
-            <Link to={`/pensieve/tags/${kebabCase(tag.fieldValue)}/`} className="inline-link">
+            <Link to={`/pensieve/tags/${camelCase(tag.fieldValue)}/`} className="inline-link">
               {tag.fieldValue} <span className="count">({tag.totalCount})</span>
             </Link>
           </li>

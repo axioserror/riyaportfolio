@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Layout } from '@components';
 import { IconBookmark } from '@components/icons';
-
+import camelCase from 'camelcase';
 const StyledMainContainer = styled.main`
   & > header {
     margin-bottom: 100px;
@@ -184,7 +184,7 @@ const PensievePage = ({ location, data }) => {
                       <ul className="post__tags">
                         {tags.map((tag, i) => (
                           <li key={i}>
-                            <Link to={`/pensieve/tags/${kebabCase(tag)}/`} className="inline-link">
+                            <Link to={`/pensieve/tags/${camelCase(tag)}/`} className="inline-link">
                               #{tag}
                             </Link>
                           </li>
