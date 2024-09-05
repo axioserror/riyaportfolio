@@ -1,20 +1,17 @@
-/**
- * Implement Gatsby's Node APIs in this file.
- *
- * See: https://www.gatsbyjs.org/docs/node-apis/
- */
-
 const path = require('path');
 const _ = require('lodash');
 
 exports.createPages = async ({ actions, graphql, reporter }) => {
   const { createPage } = actions;
+  
+  // Paths to your templates
   const postTemplate = path.resolve(`src/templates/post.js`);
-  const tagTemplate = path.resolve('src/templates/tag.js');
+  const tagTemplate = path.resolve(`src/templates/tag.js`);
 
+  // Query to get all posts and tags
   const result = await graphql(`
     {
-      postsRemark: allMarkdownRemark(
+      allMarkdownRemark(
         filter: { fileAbsolutePath: { regex: "/content/posts/" } }
         sort: { order: DESC, fields: [frontmatter___date] }
         limit: 1000
@@ -23,6 +20,7 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
           node {
             frontmatter {
               slug
+              tags
             }
           }
         }
@@ -35,26 +33,26 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
     }
   `);
 
-  // Handle errors
+  // Handle errors in GraphQL query
   if (result.errors) {
     reporter.panicOnBuild(`Error while running GraphQL query.`);
     return;
   }
 
-  // Create post detail pages
-  const posts = result.data.postsRemark.edges;
-
+  // Create pages for each post
+  const posts = result.data.allMarkdownRemark.edges;
   posts.forEach(({ node }) => {
     createPage({
       path: node.frontmatter.slug,
       component: postTemplate,
-      context: {},
+      context: {
+        slug: node.frontmatter.slug,
+      },
     });
   });
 
-  // Extract tag data from query
+  // Create tag pages
   const tags = result.data.tagsGroup.group;
-  // Make tag pages
   tags.forEach(tag => {
     createPage({
       path: `/pensieve/tags/${_.kebabCase(tag.fieldValue)}/`,
@@ -66,9 +64,8 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
   });
 };
 
-// https://www.gatsbyjs.org/docs/node-apis/#onCreateWebpackConfig
+// Configure Webpack to handle specific modules
 exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
-  // https://www.gatsbyjs.org/docs/debugging-html-builds/#fixing-third-party-modules
   if (stage === 'build-html' || stage === 'develop-html') {
     actions.setWebpackConfig({
       module: {
